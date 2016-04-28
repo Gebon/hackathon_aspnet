@@ -1,0 +1,16 @@
+﻿@model System.Linq.IQueryable<DepenedcyInjection.Models.Product>
+
+@{
+    ViewBag.Title = "Products";
+    Layout = "../Shared/_Layout.cshtml";
+}
+
+<h2>Products</h2>
+@foreach (var product in Model)
+{
+    <div class="item">
+        <h3>@product.Name</h3>
+        @product.Description
+        <h4>@product.Price.ToString("c")</h4>
+    </div>
+}
