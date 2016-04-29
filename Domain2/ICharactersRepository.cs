@@ -4,9 +4,8 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain;
 
-namespace Domain2
+namespace Domain
 {
     public interface ICharactersRepository
     {

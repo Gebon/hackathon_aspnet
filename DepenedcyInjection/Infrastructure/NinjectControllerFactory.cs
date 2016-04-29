@@ -6,7 +6,6 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using DependencyInjection.Models;
 using Domain;
-using Domain2;
 using Moq;
 using Ninject;
 
@@ -33,7 +32,7 @@ namespace DepenedcyInjection.Infrastructure
         private void AddBindings()
         {
             ninjectKernel.Bind<ICharactersRepository>().To<ApplicationDbContext>();
-            ninjectKernel.Bind<ISessionProvider>().To<SessionProvider>();
+            ninjectKernel.Bind<ICartProvider>().To<CartProvider>();
         }
     }
 }

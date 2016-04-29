@@ -191,9 +191,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Infrastructure\ISessionProvider.cs" />
+    <Compile Include="Infrastructure\ICartProvider.cs" />
     <Compile Include="Infrastructure\NinjectControllerFactory.cs" />
-    <Compile Include="Infrastructure\SessionProvider.cs" />
+    <Compile Include="Infrastructure\CartProvider.cs" />
     <Compile Include="Migrations\201604290627317_Initial.cs" />
     <Compile Include="Migrations\201604290627317_Initial.Designer.cs">
       <DependentUpon>201604290627317_Initial.cs</DependentUpon>

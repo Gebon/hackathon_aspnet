@@ -2,7 +2,7 @@
 
 namespace DepenedcyInjection.Infrastructure
 {
-    public interface ISessionProvider
+    public interface ICartProvider
     {
         IEnumerable<int> Cart { get; } 
     }

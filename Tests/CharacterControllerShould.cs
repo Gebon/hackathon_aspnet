@@ -8,7 +8,6 @@ using System.Web.Mvc;
 using DepenedcyInjection.Controllers;
 using DepenedcyInjection.Infrastructure;
 using Domain;
-using Domain2;
 using Moq;
 using Ninject;
 using NUnit.Framework;
@@ -41,14 +40,14 @@ namespace Tests
         [Test]
         public void ReturnCorrectSession()
         {
-            var mock = new Mock<ISessionProvider>();
+            var mock = new Mock<ICartProvider>();
             mock.Setup(x => x.Cart).Returns(new List<int>
             {
                 1,2,3,4
             });
             var kernel = new StandardKernel();
-            kernel.Bind<ISessionProvider>().ToConstant(mock.Object);
-            var sessionProvider = kernel.Get<ISessionProvider>();
+            kernel.Bind<ICartProvider>().ToConstant(mock.Object);
+            var sessionProvider = kernel.Get<ICartProvider>();
             Assert.AreEqual(sessionProvider.Cart, new List<int>{1,2,3,4});
         }
     }

@@ -54,15 +54,7 @@
                     }
                     else
                     {
-                        if (points < character.Cost)
-                        {
-                            <button data-id="@character.Id" class="btn btn-default">Vote</button>
-                        }
-                        else
-                        {
-                            <button data-id="@character.Id" class="vote btn btn-success">Vote</button>
-
-                        }
+                        <button data-id="@character.Id" class="@(points < character.Cost ? "disabled" : "") vote btn btn-success">Vote</button>
                     }
 
                 </div>

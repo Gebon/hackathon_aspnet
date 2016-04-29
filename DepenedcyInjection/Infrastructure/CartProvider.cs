@@ -7,12 +7,12 @@ using Domain;
 
 namespace DepenedcyInjection.Infrastructure
 {
-    public class SessionProvider : ISessionProvider
+    public class CartProvider : ICartProvider
     {
         public Controller Controller { get; set; }
         public IEnumerable<int> Cart { get { return Controller.Session["votes"] as HashSet<int>; } }
 
-        public SessionProvider(Controller controller)
+        public CartProvider(Controller controller)
         {
             Controller = controller;
         }

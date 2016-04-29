@@ -8,7 +8,6 @@ using System.Web;
 using System.Web.Mvc;
 using DependencyInjection.Models;
 using Domain;
-using Domain2;
 using Microsoft.VisualBasic.FileIO;
 using Newtonsoft.Json;
 using Ninject.Infrastructure.Language;
@@ -62,8 +61,10 @@ namespace DepenedcyInjection.Controllers
             var result = repository.Characters.ToList();
             foreach (var o in json)
             {
-                var filtered = FilterInternal(o.fieldName.ToObject<string>(), o.fieldValue.ToObject<string>());
-                result.RemoveAll(x => filtered.Contains(x));
+                if (string.IsNullOrEmpty(o.fieldValue.ToObject<string>()))
+                    continue;
+                IEnumerable<Character> filtered = FilterInternal(o.fieldName.ToObject<string>(), o.fieldValue.ToObject<string>());
+                result.RemoveAll(x => !filtered.Contains(x));
             }
             return Json(result);
         }
