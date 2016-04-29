@@ -9,12 +9,33 @@ namespace DepenedcyInjection.Infrastructure
 {
     public class CartProvider : ICartProvider
     {
-        public Controller Controller { get; set; }
-        public IEnumerable<int> Cart { get { return Controller.Session["votes"] as HashSet<int>; } }
+        private const int DefaultPoints = 15;
+        private const string Points = "points";
+        private const string Votes = "votes";
 
-        public CartProvider(Controller controller)
+        public IEnumerable<int> GetCart(Controller c)
         {
-            Controller = controller;
+            if (c.Session[Votes] == null)
+                SetCart(c, new HashSet<int>());
+
+            return c.Session[Votes] as HashSet<int>;
+        }
+
+        public void SetCart(Controller c, HashSet<int> cart)
+        {
+            c.Session[Votes] = cart;
+        }
+
+        public int GetPoints(Controller c)
+        {
+            if (c.Session[Points] == null)
+                SetPoints(c, DefaultPoints);
+            return (int) c.Session[Points];
+        }
+
+        public void SetPoints(Controller c, int points)
+        {
+            c.Session[Points] = points;
         }
     }
 }

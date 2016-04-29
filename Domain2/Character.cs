@@ -22,13 +22,13 @@ namespace Domain
         [StringLength(200), Required]
         public string Name { get; set; }
         [Required]
-        public Gender Gender { get; set; }
+        public Gender? Gender { get; set; }
         [StringLength(100)]
         public string Born { get; set; }
         [Required]
-        public bool Died { get; set; }
+        public bool? Died { get; set; }
         [Required, DefaultValue(2)]
-        public int Cost { get; set; }
+        public int? Cost { get; set; }
 
         public override string ToString()
         {

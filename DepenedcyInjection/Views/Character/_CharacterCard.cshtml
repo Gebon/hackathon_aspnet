@@ -1,0 +1,31 @@
+﻿@using DepenedcyInjection.Infrastructure
+@model Domain.Character
+
+<div class="aligner">
+    <div class="flip-container">
+        <div class="flipper">
+            <div class="front center">
+                <h3>@Model.Name @(ViewBag.IsVoted ? "✅" : "")</h3>
+                <img class="image" src="~/Content/Images/@(Model.Name.Replace(" ", "")).jpg" alt="@Model.Name" />
+            </div>
+            <div class="back center">
+                <p>Born @Model.Born</p>
+                <p>Gender: @Model.Gender.ToString().ToLower()</p>
+                <p>Character is @(Model.Died ?? false ? "dead" : "alive")</p>
+                <p>Cost: @Model.Cost</p>
+                @if (!ViewBag.VotingDisabled)
+                {
+                    if (ViewBag.IsVoted)
+                    {
+                        <button data-id="@Model.Id" class="@(ViewBag.IsVoted ? "un" : "")vote btn btn-danger">Unvote</button>
+                    }
+                    else
+                    {
+                        <button data-id="@Model.Id" class="@(ViewBag.CanVote ? "" : "disabled") vote btn btn-success">Vote</button>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

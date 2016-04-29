@@ -41,14 +41,14 @@ namespace Tests
         public void ReturnCorrectSession()
         {
             var mock = new Mock<ICartProvider>();
-            mock.Setup(x => x.Cart).Returns(new List<int>
+            mock.Setup(x => x.GetCart).Returns(new List<int>
             {
                 1,2,3,4
             });
             var kernel = new StandardKernel();
             kernel.Bind<ICartProvider>().ToConstant(mock.Object);
             var sessionProvider = kernel.Get<ICartProvider>();
-            Assert.AreEqual(sessionProvider.Cart, new List<int>{1,2,3,4});
+            Assert.AreEqual(sessionProvider.GetCart, new List<int>{1,2,3,4});
         }
     }
 }

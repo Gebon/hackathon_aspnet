@@ -2,22 +2,30 @@
 @model IEnumerable<Character>
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Search";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-
-@foreach (var property in typeof (Character).GetProperties().Where(x => x.Name != "Id"))
+@using (Ajax.BeginForm("Search", "Character", new AjaxOptions
 {
-    <label for="@property.Name">@property.Name</label>
-    <input class="input-group" id="@property.Name" type="text" name="fieldValue"/>
-
-    <br/>
+    HttpMethod = "POST",
+    InsertionMode = InsertionMode.Replace,
+    UpdateTargetId = "content2"
+}))
+{
+    <div class="form-horizontal">
+        @foreach (var property in typeof (Character).GetProperties().Where(x => x.Name != "Id"))
+        {
+            <div class="form-group">
+                @Html.Label(property.Name)
+                @Html.Editor(property.Name)
+            </div>
+        }
+        <input type="submit" value="Search" class="btn btn-default"/>
+    </div>
 }
-    
-<input id="yolo" type="submit" value="Search"/>
 
-<div class="content">
-</div>
+<div id="content2"></div>
 
 @Scripts.Render("~/js/search")
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>

@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.IO;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using DependencyInjection.Models;
+using DepenedcyInjection.Infrastructure;
 using Domain;
-using Microsoft.VisualBasic.FileIO;
 using Newtonsoft.Json;
 using Ninject.Infrastructure.Language;
 using PagedList;
@@ -21,24 +17,23 @@ namespace DepenedcyInjection.Controllers
         private ICharactersRepository repository;
         private ApplicationDbContext context = new ApplicationDbContext();
         public static int DefaultPoints = 15;
+        private readonly ICartProvider provider;
+
 
         public CharacterController(ICharactersRepository productRepository)
         {
             repository = productRepository;
+            provider = new CartProvider();
         }
 
         public ViewResult List(int? page)
         {
+            ViewBag.Points = provider.GetPoints(this);
+            ViewBag.Votes = provider.GetCart(this);
             page = page ?? 1;
             ViewBag.Action = "List";
             return View(repository.Characters.ToEnumerable().ToPagedList(page.Value, PageSize));
         }
-
-        public string Import(string filePath)
-        {
-            return "";
-        }
-
 
         public IEnumerable<Character> FilterInternal(string fieldName, string fieldValue)
         {
@@ -55,18 +50,24 @@ namespace DepenedcyInjection.Controllers
         }
 
         [HttpPost]
-        public JsonResult Search(string filterData)
+        public ActionResult Search(Character characterWithMismatches)
         {
-            var json = JsonConvert.DeserializeObject<dynamic[]>(filterData);
+            ViewBag.Votes = provider.GetCart(this);
+            ViewBag.Points = provider.GetPoints(this);
+            ViewBag.IsVoted = false;
+            ViewBag.CanVote = false;
+            ViewBag.VotingDisabled = true;
+            //var json = JsonConvert.DeserializeObject<dynamic[]>(filterData);
             var result = repository.Characters.ToList();
-            foreach (var o in json)
+            foreach (var o in characterWithMismatches.GetType().GetProperties().Where(x => x.Name != "Id"))
             {
-                if (string.IsNullOrEmpty(o.fieldValue.ToObject<string>()))
+                if (string.IsNullOrEmpty(o.GetValue(characterWithMismatches)?.ToString()))
                     continue;
-                IEnumerable<Character> filtered = FilterInternal(o.fieldName.ToObject<string>(), o.fieldValue.ToObject<string>());
+                IEnumerable<Character> filtered = FilterInternal(o.Name, o.GetValue(characterWithMismatches).ToString());
                 result.RemoveAll(x => !filtered.Contains(x));
             }
-            return Json(result);
+//            return Json(result);
+            return PartialView("_CharacterList", result);
         }
 
         public ActionResult Search(IEnumerable<Character> characters)

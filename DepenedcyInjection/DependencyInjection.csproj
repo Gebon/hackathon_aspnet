@@ -206,6 +206,10 @@
     <Compile Include="Migrations\201604291139181_AddCosts.Designer.cs">
       <DependentUpon>201604291139181_AddCosts.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201604291634534_AddUserPoints.cs" />
+    <Compile Include="Migrations\201604291634534_AddUserPoints.Designer.cs">
+      <DependentUpon>201604291634534_AddUserPoints.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -232,6 +236,8 @@
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
@@ -278,6 +284,8 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Character\List.cshtml" />
     <Content Include="Views\Character\Search.cshtml" />
+    <Content Include="Views\Character\_CharacterCard.cshtml" />
+    <Content Include="Views\Character\_CharacterList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -306,6 +314,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201604291139181_AddCosts.resx">
       <DependentUpon>201604291139181_AddCosts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604291634534_AddUserPoints.resx">
+      <DependentUpon>201604291634534_AddUserPoints.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
