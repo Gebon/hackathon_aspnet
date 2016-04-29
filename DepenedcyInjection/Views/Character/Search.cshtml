@@ -1,0 +1,40 @@
+﻿@using Domain
+@model IEnumerable<Character>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@foreach (var property in typeof (Character).GetProperties().Where(x => x.Name != "Id"))
+{
+    <label for="@property.Name">@property.Name</label>
+    <input id="@property.Name" type="text" name="fieldValue"/>
+    <br/>
+}
+    
+<input id="yolo" type="submit" value="Search"/>
+
+<div class="content">
+</div>
+@*@foreach (var character in Model)
+{
+    <div class="aligner">
+        <div class="flip-container">
+            <div class="flipper">
+                <div class="front center">
+                    <h3>@character.Name</h3>
+                    <img class="image" src="~/Content/Images/@(character.Name.Replace(" ", "")).jpg" alt="@character.Name" />
+                </div>
+                <div class="back center">
+                    <p>Born @character.Born</p>
+                    <p>Gender: @character.Gender.ToString().ToLower()</p>
+                    <p>Character is @(character.Died ? "dead" : "alive")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}*@
+
+@Scripts.Render("~/js/search")

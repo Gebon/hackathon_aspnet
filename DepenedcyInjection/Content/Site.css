@@ -22,3 +22,76 @@ select,
 textarea {
     max-width: 280px;
 }
+
+
+.image {
+    width: 80%;
+}
+
+.left-side {
+    float: left;
+    width: 70%;
+}
+
+.right-side {
+    float: right;
+    width: 30%;
+    text-align: right;
+}
+
+.center {
+    text-align: center;
+    align-content: center;
+}
+
+.aligner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back:nth-child(n) {
+    position: relative;
+    /*transform: translateY(20%);*/
+}
+
+/* entire container, keeps perspective */
+.flip-container {
+    perspective: 1000;
+}
+    /* flip the pane when hovered */
+    .flip-container:hover .flipper, .flip-container.hover .flipper {
+        transform: rotateY(180deg);
+    }
+
+.flip-container, .front, .back {
+    width: 250px;
+    height: 400px;
+}
+
+/* flip speed goes here */
+.flipper {
+    transition: 0.6s;
+    transform-style: preserve-3d;
+    position: relative;
+}
+
+/* hide back of pane during swap */
+.front, .back {
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* front pane, placed above back */
+.front {
+    z-index: 2;
+    /* for firefox 31 */
+    transform: rotateY(0deg);
+}
+
+/* back, initially hidden pane */
+.back {
+    transform: rotateY(180deg);
+}

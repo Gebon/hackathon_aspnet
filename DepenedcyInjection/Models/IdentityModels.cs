@@ -1,6 +1,9 @@
 ﻿using System.Data.Entity;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Domain;
+using Domain2;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -18,8 +21,12 @@ namespace DependencyInjection.Models
         }
     }
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, ICharactersRepository
     {
+        public DbSet<Character> Characters { get; set; }
+
+        IQueryable<Character> ICharactersRepository.Characters => Characters.AsQueryable();
+
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {

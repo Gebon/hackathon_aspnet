@@ -4,7 +4,9 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using DepenedcyInjection.Models;
+using DependencyInjection.Models;
+using Domain;
+using Domain2;
 using Moq;
 using Ninject;
 
@@ -30,15 +32,8 @@ namespace DepenedcyInjection.Infrastructure
 
         private void AddBindings()
         {
-            Mock<IProductRepository> mock = new Mock<IProductRepository>();
-            mock.Setup(m => m.Products).Returns(new List<Product>
-            {
-                new Product {Name = "Football", Price = 25},
-                new Product {Name = "Surf board", Price = 179},
-                new Product {Name = "Running shoes", Price = 95}
-            }.AsQueryable());
-
-            ninjectKernel.Bind<IProductRepository>().ToConstant(mock.Object);
+            ninjectKernel.Bind<ICharactersRepository>().To<ApplicationDbContext>();
+            ninjectKernel.Bind<ISessionProvider>().To<SessionProvider>();
         }
     }
 }

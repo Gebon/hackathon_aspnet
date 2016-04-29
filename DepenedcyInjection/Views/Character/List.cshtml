@@ -1,0 +1,80 @@
+﻿@model PagedList.IPagedList<Domain.Character>
+@using DepenedcyInjection.Controllers
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Products";
+    Layout = "../Shared/_Layout.cshtml";
+}
+
+<h2>Characters</h2>
+
+@*@using (Html.BeginForm("FilterPost", "Character", FormMethod.Post))
+    {
+        <label for="fieldName">Field name</label>
+        <input id="fieldName" type="text" name="fieldName"/>
+        <br/>
+        <label for="fieldValue">Field value</label>
+        <input id="fieldValue" type="text" name="fieldValue"/>
+        <br/>
+        <input type="submit" value="Filter"/>
+    }*@
+@{
+    var votes = Session["votes"] as HashSet<int>;
+    if (votes == null)
+    {
+        Session["votes"] = new HashSet<int>();
+    }
+    votes = Session["votes"] as HashSet<int>;
+
+    if (Session["points"] == null)
+    {
+        Session["points"] = CharacterController.DefaultPoints;
+    }
+    var points = (int)Session["points"];
+}
+<p>You have @points points</p>
+@foreach (var character in Model)
+{
+    <div class="aligner">
+        <div class="flip-container">
+            <div class="flipper">
+                <div class="front center">
+                    <h3>@character.Name @(votes.Contains(character.Id) ? "✅" : "")</h3>
+                    <img class="image" src="~/Content/Images/@(character.Name.Replace(" ", "")).jpg" alt="@character.Name" />
+                </div>
+                <div class="back center">
+                    <p>Born @character.Born</p>
+                    <p>Gender: @character.Gender.ToString().ToLower()</p>
+                    <p>Character is @(character.Died ? "dead" : "alive")</p>
+                    <p>Cost: @character.Cost</p>
+
+                    @if (votes.Contains(character.Id))
+                    {
+                        <button data-id="@character.Id" class="unvote btn btn-danger">Unvote</button>
+                    }
+                    else
+                    {
+                        if (points < character.Cost)
+                        {
+                            <button data-id="@character.Id" class="btn btn-default">Vote</button>
+                        }
+                        else
+                        {
+                            <button data-id="@character.Id" class="vote btn btn-success">Vote</button>
+
+                        }
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action(ViewBag.Action,
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+
+@Scripts.Render("~/js/votes")
