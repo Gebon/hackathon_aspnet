@@ -1,9 +1,10 @@
 using System;
+using System.Linq;
 using DependencyInjection.Models;
 
 namespace DepenedcyInjection.Repositories
 {
-    public abstract class BaseRepository : IDisposable
+    public abstract class BaseRepository<T> : IDisposable, IRepository<T>
     {
         protected readonly ApplicationDbContext context;
         private bool disposed;
@@ -11,7 +12,11 @@ namespace DepenedcyInjection.Repositories
         {
             this.context = context;
         }
-        
+
+        public void SaveChanges()
+        {
+            context.SaveChanges();
+        }
 
 
         protected virtual void Dispose(bool disposing)
@@ -29,5 +34,8 @@ namespace DepenedcyInjection.Repositories
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        public abstract IQueryable<T> Items { get; }
+        public abstract void Add(T item);
     }
 }

@@ -181,6 +181,7 @@ namespace DepenedcyInjection.Controllers
                 };
                 voteItemsRepository.Add(voteItem);
             }
+            voteItemsRepository.SaveChanges();
             cartProvider.SetCart(this, new Cart(new HashSet<int>(), cartProvider.GetCart(this).Points));
             return RedirectToAction("List");
         }

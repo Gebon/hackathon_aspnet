@@ -6,7 +6,7 @@ namespace DependencyInjection.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            return RedirectToActionPermanent("List", "Character");
         }
 
         public ActionResult About()

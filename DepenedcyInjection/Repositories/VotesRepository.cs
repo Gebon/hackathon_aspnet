@@ -7,13 +7,12 @@ using Domain;
 
 namespace DepenedcyInjection.Repositories
 {
-    public class VotesRepository : BaseRepository, IRepository<Vote>
+    public class VotesRepository : BaseRepository<Vote>
     {
-        public IQueryable<Vote> Items => context.Votes.AsQueryable();
-        public void Add(Vote item)
+        public override IQueryable<Vote> Items => context.Votes.AsQueryable();
+        public override void Add(Vote item)
         {
             context.Votes.Add(item);
-            context.SaveChanges();
         }
 
         public VotesRepository(ApplicationDbContext context) : base(context)
@@ -21,39 +20,36 @@ namespace DepenedcyInjection.Repositories
         }
     }
 
-    public class VoteItemsRepository : BaseRepository, IRepository<VoteItem>
+    public class VoteItemsRepository : BaseRepository<VoteItem>
     {
-        public IQueryable<VoteItem> Items => context.VoteItems.AsQueryable();
-        public void Add(VoteItem item)
+        public override IQueryable<VoteItem> Items => context.VoteItems.AsQueryable();
+        public override void Add(VoteItem item)
         {
             context.VoteItems.Add(item);
-            context.SaveChanges();
         }
 
         public VoteItemsRepository(ApplicationDbContext context) : base(context)
         {
         }
     }
-    public class CharactersRepository : BaseRepository, IRepository<Character>
+    public class CharactersRepository : BaseRepository<Character>
     {
-        public IQueryable<Character> Items => context.Characters.AsQueryable();
-        public void Add(Character item)
+        public override IQueryable<Character> Items => context.Characters.AsQueryable();
+        public override void Add(Character item)
         {
             context.Characters.Add(item);
-            context.SaveChanges();
         }
 
         public CharactersRepository(ApplicationDbContext context) : base(context)
         {
         }
     }
-    public class UsersRepository : BaseRepository, IRepository<ApplicationUser>
+    public class UsersRepository : BaseRepository<ApplicationUser>
     {
-        public IQueryable<ApplicationUser> Items => context.Users.AsQueryable();
-        public void Add(ApplicationUser item)
+        public override IQueryable<ApplicationUser> Items => context.Users.AsQueryable();
+        public override void Add(ApplicationUser item)
         {
             context.Users.Add(item);
-            context.SaveChanges();
         }
 
         public UsersRepository(ApplicationDbContext context) : base(context)
