@@ -195,6 +195,7 @@
     <Compile Include="Infrastructure\NinjectControllerFactory.cs" />
     <Compile Include="Infrastructure\CartProvider.cs" />
     <Compile Include="Infrastructure\UserProvider.cs" />
+    <Compile Include="Infrastructure\WeekProvider.cs" />
     <Compile Include="Migrations\201604290627317_Initial.cs" />
     <Compile Include="Migrations\201604290627317_Initial.Designer.cs">
       <DependentUpon>201604290627317_Initial.cs</DependentUpon>
@@ -221,6 +222,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\BaseRepository.cs" />
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Repositories\VotesRepository.cs" />
     <Compile Include="Startup.cs" />

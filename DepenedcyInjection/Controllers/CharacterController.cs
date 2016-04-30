@@ -24,17 +24,19 @@ namespace DepenedcyInjection.Controllers
         private IRepository<ApplicationUser> usersRepository;
         private readonly IUserProvider userProvider;
         private readonly ICartProvider cartProvider;
+        private IWeekProvider weekProvider;
 
-        private int Week => new GregorianCalendar().GetWeekOfYear(DateTime.Now, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
-        private bool WeeklyVoted(string userId) => votesRepository.Items.FirstOrDefault(x => x.User.Id == userId && x.Week == Week) != null;
+        private int Week => weekProvider.GetWeek();
+        private bool WeeklyVoted(string userId) => votesRepository.Items.ToList().FirstOrDefault(x => x.User.Id == userId && x.Week == Week) != null;
         public CharacterController(ICartProvider cartProvider, IUserProvider userProvider,
             IRepository<Character> charactersRepository, IRepository<Vote> votesRepository, IRepository<VoteItem> voteItemsRepository,
-            IRepository<ApplicationUser> usersRepository)
+            IRepository<ApplicationUser> usersRepository, IWeekProvider weekProvider)
         {
             this.charactersRepository = charactersRepository;
             this.votesRepository = votesRepository;
             this.voteItemsRepository = voteItemsRepository;
             this.usersRepository = usersRepository;
+            this.weekProvider = weekProvider;
             this.cartProvider = cartProvider;
             this.userProvider = userProvider;
         }

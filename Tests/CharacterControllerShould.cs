@@ -20,9 +20,7 @@ namespace Tests
     public class CharacterControllerShould
     {
         private StandardKernel kernel;
-        private Mock<IRepository<Character>> mockCharacterRepository;
         private Mock<ICartProvider> mockCartProvider;
-        private Mock<IUserProvider> mockUserProvider;
 
         public void SetCart(Cart cart)
         {
@@ -37,7 +35,7 @@ namespace Tests
             kernel.Unbind<IPrincipal>();
             kernel.Unbind<IUserProvider>();
             kernel.Unbind<IRepository<ApplicationUser>>();
-            mockUserProvider = new Mock<IUserProvider>();
+            var mockUserProvider = new Mock<IUserProvider>();
             var genericPrincipal = new GenericPrincipal(new GenericIdentity(name), new string[0]);
             mockUserProvider.Setup(x => x.GetUser(It.IsAny<Controller>())).Returns(genericPrincipal);
             kernel.Bind<IUserProvider>().ToConstant(mockUserProvider.Object);
@@ -48,7 +46,7 @@ namespace Tests
                 new ApplicationUser
                 {
                     UserName = name,
-                    Id = IdentityExtensions.FindFirstValue(genericPrincipal.Identity as ClaimsIdentity, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
+                    Id = genericPrincipal.Identity.GetUserId()
                 }
             }.AsQueryable());
             kernel.Bind<IRepository<ApplicationUser>>().ToConstant(mockUsersRepository.Object);
@@ -59,7 +57,7 @@ namespace Tests
         {
             kernel = new StandardKernel();
          
-            mockCharacterRepository = new Mock<IRepository<Character>>();
+            var mockCharacterRepository = new Mock<IRepository<Character>>();
             mockCharacterRepository.Setup(x => x.Items).Returns(new List<Character>
             {
                 new Character {Born = "In 103 DC", Died = false, Gender = Gender.Male, Name = "Eddard Stark", Id = 1,Cost = 10},
@@ -75,16 +73,25 @@ namespace Tests
             }.AsQueryable());
             kernel.Bind<IRepository<Vote>>().ToConstant(mockVotesRepository.Object);
 
-
             var mockVoteItemsRepository = new Mock<IRepository<VoteItem>>();
             mockVoteItemsRepository.Setup(x => x.Items).Returns(new List<VoteItem>()
             {
             }.AsQueryable());
             kernel.Bind<IRepository<VoteItem>>().ToConstant(mockVoteItemsRepository.Object);
 
+            UpdateIWeekProvider(1);
+
             SetCart(new Cart(new HashSet<int> { 1, 2, 4 }, 15));
             SetUser("");
         }
+
+        private void UpdateIWeekProvider(int week)
+        {
+            var mockWeekProvider = new Mock<IWeekProvider>();
+            mockWeekProvider.Setup(x => x.GetWeek()).Returns(week);
+            kernel.Bind<IWeekProvider>().ToConstant(mockWeekProvider.Object);
+        }
+
         [Test]
         public void ReturnCorrectlyFilteredItems()
         {
@@ -112,31 +119,33 @@ namespace Tests
             characterController.Vote(3);
             characterController.Vote(3);
 
-            var cart = mockCartProvider.Object.GetCart(characterController);
+            var cart = kernel.Get<ICartProvider>().GetCart(characterController);
             CollectionAssert.AreEqual(cart.Votes.OrderBy(x => x), new HashSet<int> {1,2,3,4});
         }
 
         [Test]
         public void CorrectlyVote()
         {
+            var cartProvider = kernel.Get<ICartProvider>();
             var characterController = kernel.Get<CharacterController>();
-            var points = mockCartProvider.Object.GetCart(characterController).Points;
+            var points = cartProvider.GetCart(characterController).Points;
             characterController.Vote(3);
-            var cart = mockCartProvider.Object.GetCart(characterController);
+            var cart = cartProvider.GetCart(characterController);
             CollectionAssert.AreEqual(cart.Votes.OrderBy(x => x), new HashSet<int> { 1, 2, 3, 4 });
-            Assert.AreEqual(points, cart.Points + mockCharacterRepository.Object.Items.First(x => x.Id == 3).Cost);
+            Assert.AreEqual(points, cart.Points + kernel.Get<IRepository<Character>>().Items.First(x => x.Id == 3).Cost);
         }
 
         [Test]
         public void CorrectlyUnvote()
         {
+            var cartProvider = kernel.Get<ICartProvider>();
             var characterController = kernel.Get<CharacterController>();
-            var points = mockCartProvider.Object.GetCart(characterController).Points;
+            var points = cartProvider.GetCart(characterController).Points;
             characterController.Unvote(2);
 
-            var cart = mockCartProvider.Object.GetCart(characterController);
+            var cart = cartProvider.GetCart(characterController);
             CollectionAssert.AreEqual(cart.Votes.OrderBy(x => x), new HashSet<int> { 1, 4 });
-            Assert.AreEqual(points, cart.Points - mockCharacterRepository.Object.Items.First(x => x.Id == 2).Cost);
+            Assert.AreEqual(points, cart.Points - kernel.Get<IRepository<Character>>().Items.First(x => x.Id == 2).Cost);
         }
 
         [Test]
@@ -150,16 +159,20 @@ namespace Tests
         }
 
         [Test]
-        public void AddPoints()
+        public void ProceedFirstSubmit()
         {
             SetCart(new Cart());
-            mockCartProvider.Verify(x => x.SetCart(It.IsAny<Controller>(), It.IsAny<Cart>()), () => Times.Exactly(1));
             SetUser("kek");
             var characterController = kernel.Get<CharacterController>();
             characterController.Vote(1);
             characterController.Submit();
-            Console.WriteLine(string.Join(",", mockCartProvider.Object.GetCart(characterController).Votes));
+            mockCartProvider.Verify(x => x.SetCart(It.IsAny<Controller>(), It.IsAny<Cart>()), () => Times.Exactly(1));
+        }
 
+        [Test]
+        public void NotSubmitTwiceForAWeek()
+        {
+            
         }
     }
 }

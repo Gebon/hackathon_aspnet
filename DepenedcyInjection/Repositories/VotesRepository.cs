@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using DependencyInjection.Models;
@@ -9,44 +9,55 @@ namespace DepenedcyInjection.Repositories
 {
     public class VotesRepository : BaseRepository, IRepository<Vote>
     {
-        public IQueryable<Vote> Items => Context.Votes.AsQueryable();
+        public IQueryable<Vote> Items => context.Votes.AsQueryable();
         public void Add(Vote item)
         {
-            Context.Votes.Add(item);
-            Context.SaveChanges();
+            context.Votes.Add(item);
+            context.SaveChanges();
         }
-    }
 
-    public class BaseRepository
-    {
-        protected readonly ApplicationDbContext Context = ApplicationDbContext.Create();
+        public VotesRepository(ApplicationDbContext context) : base(context)
+        {
+        }
     }
 
     public class VoteItemsRepository : BaseRepository, IRepository<VoteItem>
     {
-        public IQueryable<VoteItem> Items => Context.VoteItems.AsQueryable();
+        public IQueryable<VoteItem> Items => context.VoteItems.AsQueryable();
         public void Add(VoteItem item)
         {
-            Context.VoteItems.Add(item);
-            Context.SaveChanges();
+            context.VoteItems.Add(item);
+            context.SaveChanges();
+        }
+
+        public VoteItemsRepository(ApplicationDbContext context) : base(context)
+        {
         }
     }
     public class CharactersRepository : BaseRepository, IRepository<Character>
     {
-        public IQueryable<Character> Items => Context.Characters.AsQueryable();
+        public IQueryable<Character> Items => context.Characters.AsQueryable();
         public void Add(Character item)
         {
-            Context.Characters.Add(item);
-            Context.SaveChanges();
+            context.Characters.Add(item);
+            context.SaveChanges();
+        }
+
+        public CharactersRepository(ApplicationDbContext context) : base(context)
+        {
         }
     }
     public class UsersRepository : BaseRepository, IRepository<ApplicationUser>
     {
-        public IQueryable<ApplicationUser> Items => Context.Users.AsQueryable();
+        public IQueryable<ApplicationUser> Items => context.Users.AsQueryable();
         public void Add(ApplicationUser item)
         {
-            Context.Users.Add(item);
-            Context.SaveChanges();
+            context.Users.Add(item);
+            context.SaveChanges();
+        }
+
+        public UsersRepository(ApplicationDbContext context) : base(context)
+        {
         }
     }
 }

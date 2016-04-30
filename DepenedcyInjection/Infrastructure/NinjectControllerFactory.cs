@@ -34,6 +34,8 @@ namespace DepenedcyInjection.Infrastructure
             ninjectKernel.Bind<IRepository<Character>>().To<CharactersRepository>();
             ninjectKernel.Bind<ICartProvider>().To<CartProvider>();
             ninjectKernel.Bind<IUserProvider>().To<UserProvider>();
+            ninjectKernel.Bind<IWeekProvider>().To<WeekProvider>();
+            ninjectKernel.Bind<ApplicationDbContext>().ToConstant(ApplicationDbContext.Create());
         }
     }
 }
