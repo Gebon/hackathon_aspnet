@@ -45,53 +45,50 @@ textarea {
 }
 
 .aligner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0 auto;
 }
 
-.back:nth-child(n) {
-    position: relative;
-    /*transform: translateY(20%);*/
+.card {
+    border: 1px solid black;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 5%;
 }
 
-/* entire container, keeps perspective */
-.flip-container {
-    perspective: 1000;
-}
-    /* flip the pane when hovered */
-    .flip-container:hover .flipper, .flip-container.hover .flipper {
-        transform: rotateY(180deg);
-    }
-
-.flip-container, .front, .back {
-    width: 250px;
-    height: 400px;
+.card img {
+    display: block;
+    float: left;
+    width: 40%;
+    max-width: 300px;
+    border-bottom-left-radius: inherit;
+    border-top-left-radius: inherit;
 }
 
-/* flip speed goes here */
-.flipper {
-    transition: 0.6s;
-    transform-style: preserve-3d;
-    position: relative;
+.card .information {
+    width: 60%;
+    float: right;
 }
 
-/* hide back of pane during swap */
-.front, .back {
-    backface-visibility: hidden;
-    position: absolute;
-    top: 0;
-    left: 0;
+.card p {
+    width: fit-content;
+    margin: 15px;
+    font-size: 1.5em;
+    padding: 3px 15px;
+    transition: 0.2s ease-in-out all;
+    cursor: pointer;
 }
 
-/* front pane, placed above back */
-.front {
-    z-index: 2;
-    /* for firefox 31 */
-    transform: rotateY(0deg);
+.card p:hover {
+    /*border: 1px solid black;*/
+    box-shadow: 1px 2px 3px 1px #7f7f7f;
+    box-shadow: 1px 2px 3px 1px rgba(127, 127, 127, 200);
+    border-radius: 4px;
 }
 
-/* back, initially hidden pane */
-.back {
-    transform: rotateY(180deg);
+.card button {
+    /*float: left;*/
+    transform: translateX(-100%);
+    border-radius: 0;
+    border-bottom-left-radius: 10px;
+    
 }

@@ -22,7 +22,7 @@ namespace Tests
         private StandardKernel kernel;
         private Mock<ICartProvider> mockCartProvider;
 
-        public void SetCart(Cart cart)
+        public void UpdateCartProvider(Cart cart)
         {
             kernel.Unbind<ICartProvider>();
             mockCartProvider = new Mock<ICartProvider>();
@@ -81,7 +81,7 @@ namespace Tests
 
             UpdateIWeekProvider(1);
 
-            SetCart(new Cart(new HashSet<int> { 1, 2, 4 }, 15));
+            UpdateCartProvider(new Cart(new HashSet<int> { 1, 2, 4 }, 15));
             SetUser("");
         }
 
@@ -151,7 +151,7 @@ namespace Tests
         [Test]
         public void RedirectNotAuthorized()
         {
-            SetCart(new Cart());
+            UpdateCartProvider(new Cart());
             var characterController = kernel.Get<CharacterController>();
 
             characterController.Vote(2);
@@ -161,7 +161,7 @@ namespace Tests
         [Test]
         public void ProceedFirstSubmit()
         {
-            SetCart(new Cart());
+            UpdateCartProvider(new Cart());
             SetUser("kek");
             var characterController = kernel.Get<CharacterController>();
             characterController.Vote(1);

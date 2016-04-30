@@ -89,6 +89,7 @@ namespace DepenedcyInjection.Controllers
                 IEnumerable<Character> filtered = FilterInternal(o.Name, o.GetValue(characterWithMismatches).ToString());
                 result.RemoveAll(x => !filtered.Contains(x));
             }
+
             return PartialView("_CharacterList", result.Select(x => new CharacterViewModel
             {
                 CanVote = !WeeklyVoted(userId) && cartProvider.GetCart(this).Points >= x.Cost,
@@ -116,6 +117,7 @@ namespace DepenedcyInjection.Controllers
                     cartProvider.GetCart(this).Points = (int) (points - cost);
                     votes.Add(id);
                 }
+                ViewBag.Points = cartProvider.GetCart(this).Points;
                 return PartialView("_CharacterCard",
                     new CharacterViewModel
                     {
@@ -149,6 +151,7 @@ namespace DepenedcyInjection.Controllers
                     cartProvider.GetCart(this).Points = (int)(points + cost);
                 }
             }
+            ViewBag.Points = cartProvider.GetCart(this).Points;
             return PartialView("_CharacterCard", new CharacterViewModel
             {
                 Character = charactersRepository.Items.First(x => x.Id == id),

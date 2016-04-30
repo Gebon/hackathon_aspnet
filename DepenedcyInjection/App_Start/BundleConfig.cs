@@ -25,7 +25,8 @@ namespace DependencyInjection
             bundles.Add(new StyleBundle("~/Content/css").Include(
                 "~/Content/reset.css",
                 "~/Content/bootstrap.css",
-                "~/Content/site.css"));
+                "~/Content/site.css",
+                "~/Content/fontawesome.min.css"));
 
             bundles.Add(new ScriptBundle("~/js/search").Include(
                 "~/Scripts/search.js"));
