@@ -22,7 +22,7 @@ namespace Tests
         private StandardKernel kernel;
         private Mock<ICartProvider> mockCartProvider;
 
-        public void SetCart(Cart cart)
+        public void SetCartProvider(Cart cart)
         {
             kernel.Unbind<ICartProvider>();
             mockCartProvider = new Mock<ICartProvider>();
@@ -52,41 +52,53 @@ namespace Tests
             kernel.Bind<IRepository<ApplicationUser>>().ToConstant(mockUsersRepository.Object);
         }
 
+        public void SetCharactersRepository(IEnumerable<Character> characters)
+        {
+            kernel.Unbind<IRepository<Character>>();
+            var mockCharacterRepository = new Mock<IRepository<Character>>();
+            mockCharacterRepository.Setup(x => x.Items).Returns(characters.AsQueryable());
+            kernel.Bind<IRepository<Character>>().ToConstant(mockCharacterRepository.Object);
+        }
+
+        public void SetVotesRepository(IEnumerable<Vote> votes)
+        {
+            kernel.Unbind<IRepository<Vote>>();
+            var mockVotesRepository = new Mock<IRepository<Vote>>();
+            mockVotesRepository.Setup(x => x.Items).Returns(votes.AsQueryable());
+            kernel.Bind<IRepository<Vote>>().ToConstant(mockVotesRepository.Object);
+
+        }
+
+        public void SetVoteItemsRepository(IEnumerable<VoteItem> voteItems)
+        {
+            kernel.Unbind<IRepository<VoteItem>>();
+            var mockVoteItemsRepository = new Mock<IRepository<VoteItem>>();
+            mockVoteItemsRepository.Setup(x => x.Items).Returns(voteItems.AsQueryable());
+            kernel.Bind<IRepository<VoteItem>>().ToConstant(mockVoteItemsRepository.Object);
+        }
+
         [SetUp]
         public void SetUp()
         {
             kernel = new StandardKernel();
-         
-            var mockCharacterRepository = new Mock<IRepository<Character>>();
-            mockCharacterRepository.Setup(x => x.Items).Returns(new List<Character>
+            SetCharactersRepository(new List<Character>
             {
                 new Character {Born = "In 103 DC", Died = false, Gender = Gender.Male, Name = "Eddard Stark", Id = 1,Cost = 10},
                 new Character {Born = "In 102 DC", Died = true, Gender = Gender.Female, Name = "Sylwa Paege", Id = 2, Cost = 2},
                 new Character {Born = "In 105 DC", Died = false, Gender = Gender.Male, Name = "Terrence Toyne", Id = 3, Cost = 7},
                 new Character {Born = "In 101 DC", Died = false, Gender = Gender.Female, Name = "Tanda Stokeworth", Id = 4, Cost = 3}
-            }.AsQueryable());
-            kernel.Bind<IRepository<Character>>().ToConstant(mockCharacterRepository.Object);
+            });
+            SetVotesRepository(new List<Vote>());
+            SetVoteItemsRepository(new List<VoteItem>());
+            SetWeekProvider(1);
 
-            var mockVotesRepository = new Mock<IRepository<Vote>>();
-            mockVotesRepository.Setup(x => x.Items).Returns(new List<Vote>()
-            {
-            }.AsQueryable());
-            kernel.Bind<IRepository<Vote>>().ToConstant(mockVotesRepository.Object);
-
-            var mockVoteItemsRepository = new Mock<IRepository<VoteItem>>();
-            mockVoteItemsRepository.Setup(x => x.Items).Returns(new List<VoteItem>()
-            {
-            }.AsQueryable());
-            kernel.Bind<IRepository<VoteItem>>().ToConstant(mockVoteItemsRepository.Object);
-
-            UpdateIWeekProvider(1);
-
-            SetCart(new Cart(new HashSet<int> { 1, 2, 4 }, 15));
+            SetCartProvider(new Cart(new HashSet<int> { 1, 2, 4 }, 15));
             SetUser("");
         }
 
-        private void UpdateIWeekProvider(int week)
+        private void SetWeekProvider(int week)
         {
+            kernel.Unbind<IWeekProvider>();
             var mockWeekProvider = new Mock<IWeekProvider>();
             mockWeekProvider.Setup(x => x.GetWeek()).Returns(week);
             kernel.Bind<IWeekProvider>().ToConstant(mockWeekProvider.Object);
@@ -151,7 +163,7 @@ namespace Tests
         [Test]
         public void RedirectNotAuthorized()
         {
-            SetCart(new Cart());
+            SetCartProvider(new Cart());
             var characterController = kernel.Get<CharacterController>();
 
             characterController.Vote(2);
@@ -161,7 +173,7 @@ namespace Tests
         [Test]
         public void ProceedFirstSubmit()
         {
-            SetCart(new Cart());
+            SetCartProvider(new Cart());
             SetUser("kek");
             var characterController = kernel.Get<CharacterController>();
             characterController.Vote(1);
@@ -172,7 +184,89 @@ namespace Tests
         [Test]
         public void NotSubmitTwiceForAWeek()
         {
+            SetCartProvider(new Cart());
+            SetUser("Kek");
+
+            var characterController = kernel.Get<CharacterController>();
+            characterController.Vote(1);
+            characterController.Submit();
+            SetVotesRepository(new List<Vote>
+            {
+                new Vote
+                {
+                    Id = 10,
+                    User = kernel.Get<IRepository<ApplicationUser>>().Items.First(),
+                    Week = kernel.Get<IWeekProvider>().GetWeek()
+                }
+            });
+            characterController = kernel.Get<CharacterController>();
+            characterController.Submit();
+            mockCartProvider.Verify(x => x.SetCart(It.IsAny<Controller>(), It.IsAny<Cart>()), () => Times.Exactly(1));
+        }
+
+        [Test]
+        public void AllowVotingOnWeekChange()
+        {
+            SetCartProvider(new Cart());
+            SetUser("Kek");
+
+            var characterController = kernel.Get<CharacterController>();
+            characterController.Vote(1);
+            characterController.Submit();
+
+            SetVotesRepository(new List<Vote>
+            {
+                new Vote
+                {
+                    Id = 10,
+                    User = kernel.Get<IRepository<ApplicationUser>>().Items.First(),
+                    Week = kernel.Get<IWeekProvider>().GetWeek()
+                }
+            });
+            SetWeekProvider(2);
             
+            characterController = kernel.Get<CharacterController>();
+            characterController.Vote(1);
+            characterController.Submit();
+
+            mockCartProvider.Verify(x => x.SetCart(It.IsAny<Controller>(), It.IsAny<Cart>()), () => Times.Exactly(2));
+        }
+
+        [Test]
+        public void ReturnPointsForUnvote()
+        {
+            SetCartProvider(new Cart());
+            var characterController = kernel.Get<CharacterController>();
+            var points = kernel.Get<ICartProvider>().GetCart(characterController).Points;
+            characterController.Vote(1);
+            characterController.Unvote(1);
+
+            var cart = kernel.Get<ICartProvider>().GetCart(characterController);
+            Assert.AreEqual(points, cart.Points);
+        }
+
+        [Test]
+        public void NotAllowVotingWithoutPoints()
+        {
+            SetCartProvider(new Cart(new HashSet<int>(), 0));
+            SetUser("kek");
+            var characterController = kernel.Get<CharacterController>();
+            characterController.Vote(1);
+
+            var cart = kernel.Get<ICartProvider>().GetCart(characterController);
+            Assert.AreEqual(cart.Votes.Count, 0);
+        }
+
+        [Test]
+        public void NotAllowUnvotingBeforeVoting()
+        {
+            SetCartProvider(new Cart());
+            SetUser("kek");
+            var characterController = kernel.Get<CharacterController>();
+            characterController.Unvote(1);
+
+            var cart = kernel.Get<ICartProvider>().GetCart(characterController);
+            Assert.AreEqual(cart.Votes.Count, 0);
         }
     }
 }

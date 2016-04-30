@@ -106,14 +106,15 @@ namespace DepenedcyInjection.Controllers
         [HttpPost]
         public ActionResult Vote(int id)
         {
-            if (!WeeklyVoted(userProvider.GetUser(this).Identity.GetUserId()))
+            var cost = charactersRepository.Items.First(x => x.Id == id).Cost;
+            var points = cartProvider.GetCart(this).Points;
+
+            if (!WeeklyVoted(userProvider.GetUser(this).Identity.GetUserId()) && points >= cost)
             {
                 var votes = cartProvider.GetCart(this).Votes;
                 if (!votes.Contains(id))
                 {
-                    var cost = charactersRepository.Items.First(x => x.Id == id).Cost;
-                    var points = cartProvider.GetCart(this).Points;
-                    cartProvider.GetCart(this).Points = (int) (points - cost);
+                    cartProvider.GetCart(this).Points = (int)(points - cost);
                     votes.Add(id);
                 }
                 return PartialView("_CharacterCard",
@@ -181,7 +182,6 @@ namespace DepenedcyInjection.Controllers
                 };
                 voteItemsRepository.Add(voteItem);
             }
-            voteItemsRepository.SaveChanges();
             cartProvider.SetCart(this, new Cart(new HashSet<int>(), cartProvider.GetCart(this).Points));
             return RedirectToAction("List");
         }
