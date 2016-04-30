@@ -1,10 +1,10 @@
-﻿@model IEnumerable<Domain.Character>
+﻿@using DepenedcyInjection.Infrastructure
+@using Ninject
+@model IEnumerable<Domain.Models.CharacterViewModel>
 
 
 <p>You have @ViewBag.Points points</p>
-@foreach (var character in Model)
+@foreach (var characterViewModel in Model)
 {
-    ViewBag.IsVoted = (ViewBag.Votes as HashSet<int>).Contains(character.Id);
-    ViewBag.CanVote = ViewBag.Points >= character.Cost.Value;
-    Html.RenderPartial("_CharacterCard", character);
+    Html.RenderPartial("_CharacterCard", characterViewModel);
 }

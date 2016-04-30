@@ -191,9 +191,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Infrastructure\ICartProvider.cs" />
+    <Compile Include="Infrastructure\Cart.cs" />
     <Compile Include="Infrastructure\NinjectControllerFactory.cs" />
     <Compile Include="Infrastructure\CartProvider.cs" />
+    <Compile Include="Infrastructure\UserProvider.cs" />
     <Compile Include="Migrations\201604290627317_Initial.cs" />
     <Compile Include="Migrations\201604290627317_Initial.Designer.cs">
       <DependentUpon>201604290627317_Initial.cs</DependentUpon>
@@ -210,11 +211,18 @@
     <Compile Include="Migrations\201604291634534_AddUserPoints.Designer.cs">
       <DependentUpon>201604291634534_AddUserPoints.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201604300810502_AddVotes.cs" />
+    <Compile Include="Migrations\201604300810502_AddVotes.Designer.cs">
+      <DependentUpon>201604300810502_AddVotes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201604300931095_DeletePoints.cs" />
+    <Compile Include="Migrations\201604300931095_DeletePoints.Designer.cs">
+      <DependentUpon>201604300931095_DeletePoints.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\IdentityModels.cs" />
-    <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\IRepository.cs" />
+    <Compile Include="Repositories\VotesRepository.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -317,6 +325,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201604291634534_AddUserPoints.resx">
       <DependentUpon>201604291634534_AddUserPoints.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604300810502_AddVotes.resx">
+      <DependentUpon>201604300810502_AddVotes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604300931095_DeletePoints.resx">
+      <DependentUpon>201604300931095_DeletePoints.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -1,9 +1,7 @@
-﻿@model PagedList.IPagedList<Domain.Character>
-@using DepenedcyInjection.Controllers
+﻿@model PagedList.IPagedList<Domain.Models.CharacterViewModel>
 @using PagedList.Mvc;
 @{
     ViewBag.Title = "Products";
-    ViewBag.VotingDisabled = false;
     Layout = "../Shared/_Layout.cshtml";
 }
 
@@ -11,6 +9,7 @@
 @{
     Html.RenderPartial("_CharacterList", Model);
 }
+@Html.ActionLink("Submit vote", "Submit", "Character")
 <br />
 Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
 

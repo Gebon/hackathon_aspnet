@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -12,9 +11,6 @@ namespace DependencyInjection.Models
     // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
     public class ApplicationUser : IdentityUser
     {
-        [Required]
-        public int Points { get; set; } = 15;
-
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
@@ -24,11 +20,11 @@ namespace DependencyInjection.Models
         }
     }
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, ICharactersRepository
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Character> Characters { get; set; }
-
-        IQueryable<Character> ICharactersRepository.Characters => Characters.AsQueryable();
+        public DbSet<Vote> Votes { get; set; }
+        public DbSet<VoteItem> VoteItems { get; set; }
 
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)

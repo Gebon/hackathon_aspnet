@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using DependencyInjection.Models;
+using DepenedcyInjection.Repositories;
 using Domain;
-using Moq;
 using Ninject;
 
 namespace DepenedcyInjection.Infrastructure
@@ -31,8 +28,12 @@ namespace DepenedcyInjection.Infrastructure
 
         private void AddBindings()
         {
-            ninjectKernel.Bind<ICharactersRepository>().To<ApplicationDbContext>();
+            ninjectKernel.Bind<IRepository<ApplicationUser>>().To<UsersRepository>();
+            ninjectKernel.Bind<IRepository<VoteItem>>().To<VoteItemsRepository>();
+            ninjectKernel.Bind<IRepository<Vote>>().To<VotesRepository>();
+            ninjectKernel.Bind<IRepository<Character>>().To<CharactersRepository>();
             ninjectKernel.Bind<ICartProvider>().To<CartProvider>();
+            ninjectKernel.Bind<IUserProvider>().To<UserProvider>();
         }
     }
 }

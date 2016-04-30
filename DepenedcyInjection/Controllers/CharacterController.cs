@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using DependencyInjection.Models;
 using DepenedcyInjection.Infrastructure;
+using DepenedcyInjection.Repositories;
 using Domain;
-using Newtonsoft.Json;
+using Domain.Models;
+using Microsoft.AspNet.Identity;
 using Ninject.Infrastructure.Language;
 using PagedList;
 
@@ -14,30 +18,45 @@ namespace DepenedcyInjection.Controllers
     public class CharacterController : Controller
     {
         private static int PageSize = 2;
-        private ICharactersRepository repository;
-        private ApplicationDbContext context = new ApplicationDbContext();
-        public static int DefaultPoints = 15;
-        private readonly ICartProvider provider;
+        private IRepository<Character> charactersRepository;
+        private IRepository<Vote> votesRepository;
+        private IRepository<VoteItem> voteItemsRepository;
+        private IRepository<ApplicationUser> usersRepository;
+        private readonly IUserProvider userProvider;
+        private readonly ICartProvider cartProvider;
 
-
-        public CharacterController(ICharactersRepository productRepository)
+        private int Week => new GregorianCalendar().GetWeekOfYear(DateTime.Now, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+        private bool WeeklyVoted(string userId) => votesRepository.Items.FirstOrDefault(x => x.User.Id == userId && x.Week == Week) != null;
+        public CharacterController(ICartProvider cartProvider, IUserProvider userProvider,
+            IRepository<Character> charactersRepository, IRepository<Vote> votesRepository, IRepository<VoteItem> voteItemsRepository,
+            IRepository<ApplicationUser> usersRepository)
         {
-            repository = productRepository;
-            provider = new CartProvider();
+            this.charactersRepository = charactersRepository;
+            this.votesRepository = votesRepository;
+            this.voteItemsRepository = voteItemsRepository;
+            this.usersRepository = usersRepository;
+            this.cartProvider = cartProvider;
+            this.userProvider = userProvider;
         }
 
         public ViewResult List(int? page)
         {
-            ViewBag.Points = provider.GetPoints(this);
-            ViewBag.Votes = provider.GetCart(this);
             page = page ?? 1;
             ViewBag.Action = "List";
-            return View(repository.Characters.ToEnumerable().ToPagedList(page.Value, PageSize));
+            ViewBag.Points = cartProvider.GetCart(this).Points;
+            var userId = userProvider.GetUser(this).Identity.GetUserId();
+            return View(charactersRepository.Items.ToEnumerable().Select(x => new CharacterViewModel
+            {
+                CanVote = !WeeklyVoted(userId) && cartProvider.GetCart(this).Points >= x.Cost,
+                IsVoted = cartProvider.GetCart(this).Votes.Contains(x.Id),
+                WeeklyVoted = WeeklyVoted(userId),
+                Character = x
+            }).ToPagedList(page.Value, PageSize));
         }
 
         public IEnumerable<Character> FilterInternal(string fieldName, string fieldValue)
         {
-            var result = repository.Characters.ToList().Where(x => x.GetType()
+            var result = charactersRepository.Items.ToList().Where(x => x.GetType()
                 .GetProperties()
                 .First(property => property.Name == fieldName).GetValue(x).ToString().Equals(fieldValue, StringComparison.InvariantCultureIgnoreCase));
             return result.OrderBy(x => x.Name);
@@ -46,19 +65,21 @@ namespace DepenedcyInjection.Controllers
         public ActionResult Filter(string fieldName, string fieldValue, int? page)
         {
             ViewBag.Action = "Filter";
-            return View("List", FilterInternal(fieldName, fieldValue).ToPagedList(page ?? 1, PageSize));
+            return View("List", FilterInternal(fieldName, fieldValue).Select(x => new CharacterViewModel
+            {
+                CanVote = !WeeklyVoted(userProvider.GetUser(this).Identity.GetUserId()) && cartProvider.GetCart(this).Points >= x.Cost,
+                IsVoted = cartProvider.GetCart(this).Votes.Contains(x.Id),
+                WeeklyVoted = WeeklyVoted(userProvider.GetUser(this).Identity.GetUserId()),
+                Character = x
+            }).ToPagedList(page ?? 1, PageSize));
         }
 
         [HttpPost]
         public ActionResult Search(Character characterWithMismatches)
         {
-            ViewBag.Votes = provider.GetCart(this);
-            ViewBag.Points = provider.GetPoints(this);
-            ViewBag.IsVoted = false;
-            ViewBag.CanVote = false;
-            ViewBag.VotingDisabled = true;
-            //var json = JsonConvert.DeserializeObject<dynamic[]>(filterData);
-            var result = repository.Characters.ToList();
+            var userId = userProvider.GetUser(this).Identity.GetUserId();
+            var result = charactersRepository.Items.ToList();
+            ViewBag.Points = cartProvider.GetCart(this).Points;
             foreach (var o in characterWithMismatches.GetType().GetProperties().Where(x => x.Name != "Id"))
             {
                 if (string.IsNullOrEmpty(o.GetValue(characterWithMismatches)?.ToString()))
@@ -66,8 +87,13 @@ namespace DepenedcyInjection.Controllers
                 IEnumerable<Character> filtered = FilterInternal(o.Name, o.GetValue(characterWithMismatches).ToString());
                 result.RemoveAll(x => !filtered.Contains(x));
             }
-//            return Json(result);
-            return PartialView("_CharacterList", result);
+            return PartialView("_CharacterList", result.Select(x => new CharacterViewModel
+            {
+                CanVote = !WeeklyVoted(userId) && cartProvider.GetCart(this).Points >= x.Cost,
+                IsVoted = cartProvider.GetCart(this).Votes.Contains(x.Id),
+                WeeklyVoted = WeeklyVoted(userId),
+                Character = x
+            }));
         }
 
         public ActionResult Search(IEnumerable<Character> characters)
@@ -76,43 +102,85 @@ namespace DepenedcyInjection.Controllers
         }
 
         [HttpPost]
-        public void Vote(int id)
+        public ActionResult Vote(int id)
         {
-            var votes = GetVotesFromSession();
-            var cost = repository.Characters.First(x => x.Id == id).Cost;
-            var points = GetPointsFromSession();
-            Session["points"] = points - cost;
-            votes.Add(id);
-        }
-        private int GetPointsFromSession()
-        {
-            if (Session["points"] == null)
+            if (!WeeklyVoted(userProvider.GetUser(this).Identity.GetUserId()))
             {
-                Session["points"] = DefaultPoints;
+                var votes = cartProvider.GetCart(this).Votes;
+                if (!votes.Contains(id))
+                {
+                    var cost = charactersRepository.Items.First(x => x.Id == id).Cost;
+                    var points = cartProvider.GetCart(this).Points;
+                    cartProvider.GetCart(this).Points = (int) (points - cost);
+                    votes.Add(id);
+                }
+                return PartialView("_CharacterCard",
+                    new CharacterViewModel
+                    {
+                        Character = charactersRepository.Items.First(x => x.Id == id),
+                        IsVoted = true,
+                        WeeklyVoted = false
+                    });
             }
-            var votes = (int)Session["points"];
-            return votes;
-        }
 
-        private HashSet<int> GetVotesFromSession()
-        {
-            if (Session["votes"] == null)
-                Session["votes"] = new HashSet<int>();
-            var votes = Session["votes"] as HashSet<int>;
-            return votes;
+            return PartialView("_CharacterCard", new CharacterViewModel
+            {
+                Character = charactersRepository.Items.First(x => x.Id == id),
+                CanVote = false,
+                IsVoted = false,
+                WeeklyVoted = true
+            });
         }
 
         [HttpPost]
-        public void Unvote(int id)
+        public ActionResult Unvote(int id)
         {
-            var votes = GetVotesFromSession();
-            if (votes.Contains(id))
+            var isWeeklyVoted = WeeklyVoted(userProvider.GetUser(this).Identity.GetUserId());
+            if (!isWeeklyVoted)
             {
-                votes.Remove(id);
-                var cost = repository.Characters.First(x => x.Id == id).Cost;
-                var points = GetPointsFromSession();
-                Session["points"] = points + cost;
+                var votes = cartProvider.GetCart(this).Votes;
+                if (votes.Contains(id))
+                {
+                    votes.Remove(id);
+                    var cost = charactersRepository.Items.First(x => x.Id == id).Cost;
+                    var points = cartProvider.GetCart(this).Points;
+                    cartProvider.GetCart(this).Points = (int)(points + cost);
+                }
             }
+            return PartialView("_CharacterCard", new CharacterViewModel
+            {
+                Character = charactersRepository.Items.First(x => x.Id == id),
+                IsVoted = false,
+                CanVote = !isWeeklyVoted
+            });
+        }
+
+        public RedirectToRouteResult Submit()
+        {
+            if (!userProvider.GetUser(this).Identity.IsAuthenticated)
+                return RedirectToAction("Register", "Account", new { returnUrl = Url.Action("Submit") });
+
+            if (WeeklyVoted(userProvider.GetUser(this).Identity.GetUserId()))
+                return RedirectToAction("List");
+
+            var userId = userProvider.GetUser(this).Identity.GetUserId();
+            ApplicationUser user = usersRepository.Items.First(x => x.Id == userId);
+            foreach (var characterId in cartProvider.GetCart(this).Votes)
+            {
+                var vote = new Vote { User = user, Week = Week };
+                votesRepository.Add(vote);
+
+                var character = charactersRepository.Items.First(x => x.Id == characterId);
+                var voteItem = new VoteItem
+                {
+                    Position = 1,
+                    Vote = vote,
+                    Hero = character
+                };
+                voteItemsRepository.Add(voteItem);
+            }
+            cartProvider.SetCart(this, new Cart(new HashSet<int>(), cartProvider.GetCart(this).Points));
+            return RedirectToAction("List");
         }
     }
 }
