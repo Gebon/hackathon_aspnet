@@ -1,0 +1,68 @@
+﻿@model Domain.Models.CharacterViewModel
+
+<div class="aligner" id="@Model.Character.Id">
+    <div class="card">
+        <div>
+            <img src="~/Content/Images/@(Model.Character.Name.Replace(" ", "")).jpg" alt="@Model.Character.Name"/>
+
+            @using (Ajax.BeginForm(Model.IsVoted ? "Unvote" : "Vote", "Main", new AjaxOptions
+            {
+                InsertionMode = InsertionMode.Replace,
+                UpdateTargetId = Model.Character.Id.ToString()
+            }))
+            {
+                @Html.Hidden("id", Model.Character.Id)
+                if (Model.IsVoted)
+                {
+                    <button type="submit" class="unvote btn btn-danger">Unvote</button>
+                }
+                else
+                {
+                    <button type="submit" class="@(Model.CanVote ? "" : "disabled") vote btn btn-success">Vote</button>
+                }
+            }
+        </div>
+        <div class="information">
+            <h3>Name: @Model.Character.Name</h3>
+            <p>Born @Model.Character.Born</p>
+            <p>Gender: @Model.Character.Gender.ToString().ToLower()</p>
+            <p>Character is @(Model.Character.Died ?? false ? "dead" : "alive")</p>
+            <p>Cost: @Model.Character.Cost</p>
+        </div>
+
+        <div class="clearfix"></div>
+    </div>
+</div>
+
+@*<div id="@Model.Character.Id" class="aligner">
+    <div class="flip-container">
+        <div class="flipper">
+            <div class="front center">
+                <h3>@Model.Character.Name @(Model.IsVoted ? "✅" : "")</h3>
+                <img class="image" src="~/Content/Images/@(Model.Character.Name.Replace(" ", "")).jpg" alt="@Model.Character.Name" />
+            </div>
+            <div class="back center">
+                <p>Born @Model.Character.Born</p>
+                <p>Gender: @Model.Character.Gender.ToString().ToLower()</p>
+                <p>Character is @(Model.Character.Died ?? false ? "dead" : "alive")</p>
+                <p>Cost: @Model.Character.Cost</p>
+                @using (Ajax.BeginForm(Model.IsVoted ? "Unvote" : "Vote", "Character", new AjaxOptions
+                {
+                    InsertionMode = InsertionMode.Replace,
+                    UpdateTargetId = Model.Character.Id.ToString()
+                }))
+                {
+                    @Html.Hidden("id", Model.Character.Id)
+                    if (Model.IsVoted)
+                    {
+                        <button type="submit" class="unvote btn btn-danger">Unvote</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="@(Model.CanVote ? "" : "disabled") vote btn btn-success">Vote</button>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>*@

@@ -1,0 +1,35 @@
+﻿@using Domain.Models
+@using Domain2.Models
+@model DepenedcyInjection.DiscussionViewModel
+
+@{
+    ViewBag.Title = "Comments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Comments</h2>
+@Model.Character.Name
+@{Html.RenderPartial("_CharacterCard", new CharacterViewModel { WeeklyVoted = true, Character = Model.Character });}
+<div id="comments">
+    @foreach (var comment in Model.Comments)
+    {
+        Html.RenderPartial("_Comment", comment);
+    }
+</div>
+@if (User.Identity.IsAuthenticated)
+{
+    using (Ajax.BeginForm("Add", "Discussion", new AjaxOptions
+    {
+        HttpMethod = "POST",
+        UpdateTargetId = "comments",
+        InsertionMode = InsertionMode.InsertAfter
+    }))
+    {
+        var comment = new Comment();
+        @Html.DisplayTextFor(_ => comment.Text)
+        @Html.EditorFor(_ => comment.Text)
+        <input type="hidden" name="userId" value="@Model.UserId" />
+        <input type="hidden" name="characterId" value="@Model.Character.Id" />
+        <input type="submit" value="Отправить" />
+    }
+}

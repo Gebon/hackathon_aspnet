@@ -1,0 +1,11 @@
+﻿@using DepenedcyInjection.Infrastructure
+@using Ninject
+@model IEnumerable<Domain.Models.CharacterViewModel>
+
+
+<p>You have @ViewBag.Points points</p>
+@foreach (var characterViewModel in Model)
+{
+    Html.RenderPartial("_CharacterCard", characterViewModel);
+    @Html.ActionLink("Comments", "ForCharacter", "Discussion", new { id = characterViewModel.Character.Id }, null)
+}

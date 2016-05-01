@@ -1,0 +1,14 @@
+﻿@model string
+@{
+    ViewBag.Title = "Upload";
+}
+
+<h2>Upload</h2>
+
+@using (Html.BeginForm("Upload", "Characters", FormMethod.Post, new { encType = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="name" value="@Model"/>
+    <input type="file" name="fileData" class="btn-success"/>
+    <input class="btn btn-success" type="submit"/>
+}
