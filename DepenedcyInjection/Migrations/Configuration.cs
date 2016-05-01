@@ -1,4 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
+using DependencyInjection.Models;
 using Domain;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace DepenedcyInjection.Migrations
 {
@@ -13,6 +18,11 @@ namespace DepenedcyInjection.Migrations
 
         protected override void Seed(DependencyInjection.Models.ApplicationDbContext context)
         {
+            var roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
+
+            foreach (var role in new List<string> { "Admin", "User" }.Where(role => !roleManager.RoleExists(role)))
+                roleManager.Create(new IdentityRole(role));
+
             //  This method will be called after migrating to the latest version.
 
             //  You can use the DbSet<T>.AddOrUpdate() helper extension method 

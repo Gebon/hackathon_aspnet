@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Domain;
+using Domain2.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -25,6 +26,7 @@ namespace DependencyInjection.Models
         public DbSet<Character> Characters { get; set; }
         public DbSet<Vote> Votes { get; set; }
         public DbSet<VoteItem> VoteItems { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)

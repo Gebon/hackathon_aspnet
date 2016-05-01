@@ -13,6 +13,9 @@ namespace DepenedcyInjection.Repositories
             this.context = context;
         }
 
+        public abstract void Update(T item);
+        public abstract void Remove(T item);
+
         public void SaveChanges()
         {
             context.SaveChanges();
@@ -25,8 +28,8 @@ namespace DepenedcyInjection.Repositories
             if (disposing)
             {
                 context.Dispose();
+                disposed = true;
             }
-            disposed = true;
         }
 
         public void Dispose()

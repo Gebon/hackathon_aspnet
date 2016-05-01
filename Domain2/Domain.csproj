@@ -117,6 +117,8 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CharacterListViewModel.cs" />
     <Compile Include="Models\CharacterViewModel.cs" />
+    <Compile Include="Models\Comment.cs" />
+    <Compile Include="Models\DiscussionViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -126,6 +128,10 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\Home\DisplayTemplates\" />
+    <Folder Include="Views\Manage\DisplayTemplates\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

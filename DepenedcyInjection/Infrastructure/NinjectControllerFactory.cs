@@ -4,6 +4,7 @@ using System.Web.Routing;
 using DependencyInjection.Models;
 using DepenedcyInjection.Repositories;
 using Domain;
+using Domain2.Models;
 using Ninject;
 
 namespace DepenedcyInjection.Infrastructure
@@ -12,7 +13,7 @@ namespace DepenedcyInjection.Infrastructure
     {
         private IKernel ninjectKernel;
 
-        public NinjectControllerFactory()
+        public NinjectControllerFactory() : base()
         {
             // создание контейнера    
             ninjectKernel = new StandardKernel();
@@ -32,6 +33,7 @@ namespace DepenedcyInjection.Infrastructure
             ninjectKernel.Bind<IRepository<VoteItem>>().To<VoteItemsRepository>();
             ninjectKernel.Bind<IRepository<Vote>>().To<VotesRepository>();
             ninjectKernel.Bind<IRepository<Character>>().To<CharactersRepository>();
+            ninjectKernel.Bind<IRepository<Comment>>().To<CommentsRepository>();
             ninjectKernel.Bind<ICartProvider>().To<CartProvider>();
             ninjectKernel.Bind<IUserProvider>().To<UserProvider>();
             ninjectKernel.Bind<IWeekProvider>().To<WeekProvider>();

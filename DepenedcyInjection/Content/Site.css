@@ -87,7 +87,7 @@ textarea {
 
 .card button {
     /*float: left;*/
-    transform: translateX(-100%);
+    transform: translateX(-98%);
     border-radius: 0;
     border-bottom-left-radius: 10px;
     
